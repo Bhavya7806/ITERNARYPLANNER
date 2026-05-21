@@ -1,0 +1,298 @@
+/* src/components/HowItWorks/HowItWorks.css */
+
+.how-it-works-section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.text-center {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+/* --- TIMELINE STYLES --- */
+.timeline-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 6rem;
+  padding: 2rem 0;
+}
+
+.timeline-connector {
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+  z-index: 0;
+  transform: translateY(-50%);
+}
+
+.dashed-line {
+  stroke: var(--color-text);
+  stroke-width: 4;
+  stroke-dasharray: 10 10;
+  stroke-dashoffset: 1000;
+}
+
+.animate-timeline .dashed-line {
+  animation: drawLine 2s linear forwards;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+.timeline-step {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 250px;
+  background: var(--color-bg);
+  padding: 1rem;
+}
+
+.step-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  border: var(--border-hard);
+  box-shadow: var(--shadow-hard);
+  position: relative;
+}
+
+/* Animations Triggered on Scroll */
+.animate-timeline .spin-in {
+  animation: spinDrop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes spinDrop {
+  0% { transform: scale(0) rotate(-180deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Fake Load to Checkmark */
+.checkmark { display: none; color: var(--color-success); font-weight: bold; font-size: 1.5rem; }
+.animate-timeline .fake-load .load-icon { animation: spinOut 1.5s forwards; }
+.animate-timeline .fake-load .checkmark { display: block; animation: popIn 0.3s forwards 1.5s; opacity: 0; }
+
+@keyframes spinOut { 100% { transform: rotate(360deg) scale(0); opacity: 0; display: none; } }
+@keyframes popIn { 100% { opacity: 1; transform: scale(1); } }
+
+/* CSS-Only Confetti */
+.animate-timeline .confetti-burst::before,
+.animate-timeline .confetti-burst::after {
+  content: ''; position: absolute; width: 100%; height: 100%; z-index: -1;
+  animation: burst 1s forwards 2s; opacity: 0;
+}
+.animate-timeline .confetti-burst::before {
+  box-shadow: 20px -20px 0 #D97706, -20px -20px 0 #10B981, 20px 20px 0 #8B5CF6, -20px 20px 0 #0F766E;
+}
+
+@keyframes burst {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+/* Step Tooltips */
+.step-preview-btn {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  cursor: pointer;
+  border-bottom: 2px dashed var(--color-primary);
+  position: relative;
+}
+
+.step-tooltip {
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  width: 200px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.step-preview-btn:hover .step-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* --- LIVE DEMO (SANDBOX) STYLES --- */
+.demo-container {
+  padding: 3rem;
+}
+
+.demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--border-hard);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.demo-layout {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+}
+
+.demo-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.control-group label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+/* Brutalist Slider */
+.brutal-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 12px;
+  background: var(--color-bg);
+  border: var(--border-hard);
+  border-radius: 6px;
+  outline: none;
+  margin-bottom: 0.5rem;
+}
+
+.brutal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  border: var(--border-hard);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--color-text);
+}
+
+.budget-display {
+  font-family: monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-secondary);
+}
+
+.weather-btn {
+  display: flex;
+  gap: 0.5rem;
+  width: fit-content;
+}
+
+.weather-btn.raining {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-secondary);
+}
+
+/* Demo Map Area */
+.demo-map-area {
+  flex: 2;
+  height: 250px;
+  background: rgba(0,0,0,0.02);
+  border: 2px dashed var(--color-text);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-paths {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+}
+
+.base-path {
+  fill: none;
+  stroke: var(--color-text);
+  stroke-width: 4;
+  stroke-dasharray: 5 5;
+  opacity: 0.3;
+}
+
+.path-active {
+  stroke: var(--color-success);
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  opacity: 1;
+  animation: tracePath 1.5s ease-out forwards;
+}
+
+@keyframes tracePath { to { stroke-dashoffset: 0; } }
+
+.demo-node {
+  position: absolute;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg);
+  border: var(--border-hard);
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--color-text);
+  transition: all 0.3s ease;
+}
+
+.demo-node:hover { transform: translateY(-3px); box-shadow: 4px 4px 0px var(--color-text); }
+.demo-node.selected { border-color: var(--color-primary); background: rgba(15, 118, 110, 0.1); }
+
+/* Data Logic Visuals */
+.node-expensive { border-color: #EF4444; color: #EF4444; }
+.node-cheap { border-color: var(--color-success); color: var(--color-success); }
+
+.weather-badge {
+  position: absolute;
+  top: -15px; right: -15px;
+  background: #F59E0B;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--color-text);
+  animation: pulseWarning 1s infinite;
+}
+
+@keyframes pulseWarning {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Positioning the nodes manually over the SVG coordinates */
+.node-paris { top: 70px; left: 30px; }
+.node-lyon { top: 20px; left: 160px; }
+.node-marseille { top: 120px; left: 310px; }
+
+@media (max-width: 768px) {
+  .timeline-container { flex-direction: column; align-items: center; gap: 3rem; }
+  .timeline-connector { width: 4px; height: 90%; top: 5%; left: 50%; transform: translateX(-50%); }
+  .dashed-line { x1: 50%; y1: 0; x2: 50%; y2: 100%; }
+  .demo-layout { flex-direction: column; }
+  .demo-map-area { width: 100%; }
+}

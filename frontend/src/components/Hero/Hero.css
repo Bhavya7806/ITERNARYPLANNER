@@ -1,0 +1,121 @@
+/* src/components/Hero/Hero.css */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 2rem 2rem;
+  overflow: hidden;
+}
+
+.parallax-orb {
+  position: absolute;
+  top: 10%; right: 10%; width: 50vw; height: 50vw;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+  border-radius: 50%; z-index: -2;
+}
+
+.bg-nodes {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: -1; opacity: 0.5; pointer-events: none;
+}
+
+.pulsing-line {
+  fill: none; stroke: var(--color-primary); stroke-width: 2;
+  stroke-dasharray: 10; animation: dash 20s linear infinite;
+}
+
+@keyframes dash { to { stroke-dashoffset: 1000; } }
+
+.floating-dot {
+  fill: var(--color-secondary);
+  animation: floatNode 4s ease-in-out infinite alternate;
+}
+.dot-1 { animation-delay: 0s; }
+.dot-2 { animation-delay: 1s; }
+.dot-3 { animation-delay: 2s; }
+
+@keyframes floatNode {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-15px); }
+}
+
+.hero-content {
+  display: flex; max-width: 1200px; width: 100%;
+  align-items: center; gap: 4rem; z-index: 1;
+}
+
+.hero-text-container { flex: 1; }
+
+.hero-headline {
+  font-size: 4rem; font-weight: 900; line-height: 1.1;
+  margin-bottom: 1.5rem; color: var(--color-text);
+  display: flex; flex-wrap: wrap;
+}
+
+.staggered-word {
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUpIn 0.5s forwards ease-out;
+}
+
+@keyframes fadeUpIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-subheadline {
+  font-size: 1.25rem; line-height: 1.6; margin-bottom: 2.5rem;
+  opacity: 0; filter: blur(10px);
+  animation: fadeBlurIn 1s forwards ease-out 0.8s;
+}
+
+@keyframes fadeBlurIn {
+  to { opacity: 1; filter: blur(0); }
+}
+
+.hero-cta-group { display: flex; gap: 1rem; }
+
+.hero-btn-main { transition: all 0.2s ease; }
+.hero-btn-main:hover { transform: scale(1.05); box-shadow: 8px 8px 0px var(--color-text); }
+
+.btn-secondary {
+  background: transparent; color: var(--color-text);
+  border: var(--border-hard); font-weight: 700;
+  padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;
+  transition: all 0.3s ease; box-shadow: var(--shadow-hard);
+}
+
+.btn-secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.hero-visual { flex: 1; perspective: 1000px; }
+
+.floating-card-3d {
+  background: var(--color-glass); backdrop-filter: blur(12px);
+  border: var(--border-hard); box-shadow: 12px 12px 0px var(--color-text);
+  border-radius: 12px; padding: 1.5rem;
+  animation: float3D 6s ease-in-out infinite alternate;
+  transform: rotateY(-10deg) rotateX(5deg);
+}
+
+@keyframes float3D {
+  0% { transform: translateY(0) rotateY(-10deg) rotateX(5deg); }
+  100% { transform: translateY(-20px) rotateY(-5deg) rotateX(2deg); }
+}
+
+.card-header { display: flex; gap: 0.5rem; border-bottom: var(--border-hard); padding-bottom: 1rem; margin-bottom: 1rem; align-items: center;}
+.dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-text); }
+.red { background: #EF4444; } .yellow { background: #F59E0B; } .green { background: #10B981; }
+.card-title { font-family: monospace; font-size: 0.9rem; font-weight: bold; margin-left: auto; }
+
+.mock-node { font-weight: 700; display: flex; justify-content: space-between; padding: 0.5rem 0; }
+.mock-node.highlight { color: var(--color-primary); }
+.mock-line { height: 20px; border-left: 2px dashed var(--color-text); margin-left: 10px; }
+.mock-budget { margin-top: 1.5rem; padding: 0.75rem; background: var(--color-success); color: white; font-weight: bold; border-radius: 6px; text-align: center; border: 2px solid var(--color-text); }
+
+@media (max-width: 768px) {
+  .hero-content { flex-direction: column; text-align: center; padding-top: 2rem; }
+  .hero-headline { justify-content: center; font-size: 3rem; }
+  .hero-cta-group { justify-content: center; }
+  .floating-card-3d { transform: none; animation: none; }
+}
