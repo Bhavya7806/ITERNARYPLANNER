@@ -36,8 +36,6 @@ const Planner = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [itineraryData, setItineraryData] = useState(null);
-  
-  // NEW: State to hold the real-world street route
   const [routePath, setRoutePath] = useState(null);
   
   const [suggestions, setSuggestions] = useState([]);
@@ -60,7 +58,6 @@ const Planner = () => {
         return;
       }
 
-      // 1. Extract all coordinates in OSRM format (Longitude, Latitude)
       const coords = [];
       itineraryData.itinerary.forEach(day => {
         day.locations.forEach(loc => {
@@ -73,12 +70,10 @@ const Planner = () => {
       if (coords.length < 2) return;
 
       try {
-        // 2. Call the free OSRM driving API
         const coordinateString = coords.join(';');
         const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordinateString}?overview=full&geometries=geojson`);
         const data = await response.json();
 
-        // 3. Convert OSRM GeoJSON back to Leaflet format (Latitude, Longitude)
         if (data.code === 'Ok' && data.routes.length > 0) {
           const routeGeoJSON = data.routes[0].geometry.coordinates;
           const leafletPath = routeGeoJSON.map(coord => [coord[1], coord[0]]);
@@ -92,7 +87,7 @@ const Planner = () => {
     fetchRealWorldRoute();
   }, [itineraryData]);
 
-  // Autocomplete Logic
+  // --- BLAZING FAST GEOAPIFY AUTOCOMPLETE WITH DEBOUNCING ---
   const handleDestinationChange = (e) => {
     const query = e.target.value;
     setFormData({ ...formData, destination: query });
@@ -107,19 +102,34 @@ const Planner = () => {
 
     typingTimeoutRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=5&featuretype=city&addressdetails=0`);
+        const apiKey = import.meta.env.VITE_GEOAPIFY_API_KEY;
+        if (!apiKey) {
+          console.warn("Geoapify API key missing. Check your environment variables.");
+          return;
+        }
+
+        const res = await fetch(
+          `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&type=city&apiKey=${apiKey}`
+        );
         const data = await res.json();
-        setSuggestions(data);
-        setShowSuggestions(true);
+        
+        if (data && data.features) {
+          setSuggestions(data.features);
+          setShowSuggestions(true);
+        }
       } catch (error) {
-        console.error("Error fetching location profiles:", error);
+        console.error("Geoapify network lookup interrupted:", error);
       }
-    }, 200); 
+    }, 250); 
   };
 
-  const selectSuggestion = (place) => {
-    setFormData({ ...formData, destination: place.display_name });
-    setMapCenter([parseFloat(place.lat), parseFloat(place.lon)]);
+  const selectSuggestion = (feature) => {
+    const displayName = feature.properties.formatted;
+    const lat = feature.geometry.coordinates[1]; 
+    const lng = feature.geometry.coordinates[0];
+
+    setFormData({ ...formData, destination: displayName });
+    setMapCenter([lat, lng]);
     setShowSuggestions(false);
   };
 
@@ -127,7 +137,7 @@ const Planner = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Generate Trip API Call
+  // --- FETCH ITINERARY FROM FASTAPI BACKEND ---
   const handleGenerateClick = async () => {
     if (!formData.destination) {
       alert("Please designate a target location!");
@@ -136,7 +146,7 @@ const Planner = () => {
 
     setIsLoading(true);
     setItineraryData(null); 
-    setRoutePath(null); // Clear old route
+    setRoutePath(null);
 
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/generate`, {
@@ -169,7 +179,7 @@ const Planner = () => {
     }
   };
 
-  // Firebase Save
+  // --- SAVE ITINERARY TO FIREBASE ---
   const handleSaveTrip = async () => {
     if (!currentUser) {
       alert("You must be logged in to save trips!");
@@ -197,7 +207,6 @@ const Planner = () => {
     }
   };
 
-  // Fallback straight lines if OSRM fails
   const getFallbackCoordinates = () => {
     if (!itineraryData) return [];
     const coords = [];
@@ -223,7 +232,7 @@ const Planner = () => {
       
       <div className="planner-layout">
         
-        {/* LEFT COLUMN */}
+        {/* LEFT COLUMN: Controls & Itinerary */}
         <div className="glass-brutal-card planner-sidebar-card">
           
           {isLoading && (
@@ -255,9 +264,9 @@ const Planner = () => {
                     </div>
                     {showSuggestions && suggestions.length > 0 && (
                       <ul className="suggestions-dropdown">
-                        {suggestions.map((place, idx) => (
-                          <li key={idx} className="suggestion-item" onClick={() => selectSuggestion(place)}>
-                            {place.display_name}
+                        {suggestions.map((feature, idx) => (
+                          <li key={idx} className="suggestion-item" onClick={() => selectSuggestion(feature)}>
+                            {feature.properties.formatted}
                           </li>
                         ))}
                       </ul>
@@ -360,7 +369,7 @@ const Planner = () => {
           )}
         </div>
 
-        {/* RIGHT COLUMN: Map Frame */}
+        {/* RIGHT COLUMN: Interactive Leaflet Map */}
         <div className="map-container-wrapper">
           <MapContainer center={mapCenter} zoom={12} scrollWheelZoom={true}>
             <MapUpdater center={mapCenter} />
@@ -369,7 +378,6 @@ const Planner = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Draw the Real-World Route OR Fallback to Dotted Lines */}
             {routePath ? (
               <Polyline 
                 positions={routePath} 
@@ -400,7 +408,7 @@ const Planner = () => {
               ))
             ) : (
               <Marker position={mapCenter}>
-                <Popup><strong>Awaiting Parameters</strong><br/>Enter destination coordinate anchors to mount maps.</Popup>
+                <Popup><strong>Awaiting Parameters</strong><br/>Enter destination coordinates to mount map.</Popup>
               </Marker>
             )}
           </MapContainer>
