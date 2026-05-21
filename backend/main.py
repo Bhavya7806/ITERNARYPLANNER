@@ -165,7 +165,24 @@ async def generate_itinerary(request: TripRequest):
             generation_config={"response_mime_type": "application/json"}
         )
         response = model.generate_content(prompt)
-        ai_data = json.loads(response.text)
+        
+        # --- AI DATA SANITIZER ---
+        raw_text = response.text.strip()
+        
+        # 1. Strip Markdown backticks if Gemini includes them
+        if raw_text.startswith("```"):
+            raw_text = raw_text.strip("`").replace("json\n", "", 1).strip()
+            
+        # 2. Safely parse the JSON
+        try:
+            ai_data = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            print(f"AI Format Error: {e}")
+            print(f"Raw Output: {raw_text}")
+            raise HTTPException(
+                status_code=500, 
+                detail="The AI formatting hiccuped. Please click Generate again!"
+            )
         raw_pool = ai_data.get("potential_locations", [])
         
         print(f"AI generated {len(raw_pool)} potential locations. Filtering via Knapsack...")
